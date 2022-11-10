@@ -3,7 +3,7 @@
     <h1>Meet Wingman - <span class="w1">Waiting for some signal<UnderscoreComponent></UnderscoreComponent></span></h1>
     <h2></h2>
   </div>
-  <MeetComponent v-if="isRecording" :events="currEvents"></MeetComponent>
+  <MeetComponent v-if="isRecording" :captions="captions"></MeetComponent>
 </template>
 
 <script>
@@ -19,76 +19,42 @@ export default {
   data() {
     return {
       isRecording: true,
-      currEvents: [
-        {
-          kind: "speaker",
-          old: "",
-          name: "John Doe",
-          new: "",
-          document: "abc",
-          date: 100,
-        },
-        {
-          kind: "text",
-          old: "",
-          name: "",
-          new: "Mispellings and grammatical errors can effect your credibility. ",
-          document: "abc",
-          date: 100,
-        },
-        {
-          kind: "text",
-          old: "",
-          name: "",
-          new: "The same goes for misused commas, and other types of punctuation . ",
-          document: "abc",
-          date: 100,
-        },
-        {
-          kind: "text",
-          old: "",
-          name: "",
-          new: "Not only will Grammarly underline these issues in red, it will also showed you how to correctly write the sentence.",
-          document: "abc",
-          date: 100,
-        },
-        {
-          kind: "speaker",
-          old: "",
-          name: "Jane Doe",
-          new: "",
-          document: "abc",
-          date: 100,
-        },
-        {
-          kind: "text",
-          old: "",
-          name: "",
-          new: "Underlines that are blue indicate that Grammarly has spotted a sentence that is unnecessarily wordy. You'll find suggestions that can possibly help you revise a wordy sentence in an effortless manner",
-          document: "abc",
-          date: 100,
-        }
-      ]
+      captions: []
     }
   },
   mounted() {
-    // const k = this
-    // setInterval(function () {
-    //   k.currEvents.push({
-    //     kind: "text",
-    //     old: "",
-    //     name: "",
-    //     new: "Underlines that are blue indicate that Grammarly has spotted a sentence that is unnecessarily wordy. You'll find suggestions that can possibly help you revise a wordy sentence in an effortless manner",
-    //     document: "abc",
-    //     date: 100,
-    //   })
-    // }, 5000);
-  },
-  setup() {
-    const channel = new BroadcastChannel('gmeet-messages');
-    channel.addEventListener ('message', (event) => {
-      console.log(event.data);
+    const k = this
+    // eslint-disable-next-line no-undef
+    chrome.storage.sync.get(['example'], function(result){
+      console.log(result.example.captions)
+      k.captions = result.example.captions
     });
+  },
+  processGmeetEvent(data) {
+    const date = new Date(data.date)
+    if (data.kind === 'speaker') {
+
+      this.captions.push({
+        speaker: data.name,
+        time:    date.toLocaleTimeString('en', {hour: "2-digit", minute: "2-digit"}),
+        texts: []
+      })
+    }
+    if (data.kind === 'text') {
+      if (this.captions.length === 0) {
+        return
+      }
+      if (data.old != null) {
+        const idx = this.captions[this.captions.length-1].texts.lastIndexOf(data.old)
+        if (idx >= 0) {
+          this.captions[this.captions.length-1].texts[idx] = data.new
+        }else {
+          this.captions[this.captions.length-1].texts.push(data.new)
+        }
+      }else {
+        this.captions[this.captions.length-1].texts.push(data.new)
+      }
+    }
   }
 }
 </script>

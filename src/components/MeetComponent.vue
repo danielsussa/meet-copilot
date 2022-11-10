@@ -4,44 +4,67 @@
     <p style="margin-top: -20px">Current time: {{meetingTime}}</p>
 
     <div id="meet-cc" contenteditable="true" autofocus>
-      <div :class="{ odd: index%2 === 0 }" class="speach" v-for="(item, index) in transform" :key="index">
-        <h2 contenteditable="false"><span class="time">{{item.time}}</span> {{item.speaker}}</h2>
+      <div :class="{ odd: index%2 === 0 }" class="speach" v-for="(item, index) in captions" :key="index">
+        <h2 contenteditable="false"><span class="time">{{date(item.unix)}}</span> {{item.speaker}}</h2>
         <div style="padding-left: 10px" >
-          {{standardText(item)}}
+          {{item.text}}
         </div>
       </div>
     </div>
 
-    <UnderscoreComponent></UnderscoreComponent>
+
   </div>
 </template>
 
 <script>
-import UnderscoreComponent from "@/components/UnderscoreComponent";
 export default {
   name: "MeetComponent",
-  components: {UnderscoreComponent},
+  components: {},
   data() {
     return {
+      captionsComputed: {
+        captions: [],
+        textChanges: [
+          {
+            operations: [
+              {
+                index: 0,
+                initChar: 0,
+                endChar: 12,
+                operation: "remove"
+              }
+            ]
+          }
+        ]
+      },
+
     }
   },
   props: {
-    events: Array,
+    captions:    Array,
     meetingName: String,
     meetingTime: String
   },
   methods: {
-    standardText(speech) {
-      let fullText = ''
-      for (const text of speech.texts) {
-        fullText += text
-      }
-      return fullText
+    date(ts) {
+      return new Date(ts).toLocaleTimeString('en', {hour: "2-digit", minute: "2-digit"})
+    },
+    processText(text, textChange) {
+      console.log(textChange)
+      return text
     }
   },
   mounted() {
+    const k = this
     let observer = new MutationObserver(function(mutations) {
+      k.textChanges[0].operations.push({
+        index: 0,
+        initChar: 0,
+        endChar: 12,
+        operation: "remove"
+      })
       console.log(mutations)
+      console.log(k.textChanges[0].operations.length)
     })
     observer.observe(document.getElementById("meet-cc"), {
       subtree:       true,
@@ -50,36 +73,7 @@ export default {
     });
   },
   computed: {
-    transform() {
 
-      const speeches = []
-      for (const event of this.events) {
-        const date = new Date(event.date)
-        if (event.kind === 'speaker') {
-          speeches.push({
-            speaker: event.name,
-            time:    date.toLocaleTimeString('en', {hour: "2-digit", minute: "2-digit"}),
-            texts: []
-          })
-        }
-        if (event.kind === 'text') {
-          if (speeches.length === 0) {
-            continue
-          }
-          if (event.old != null) {
-            const idx = speeches[speeches.length-1].texts.lastIndexOf(event.old)
-            if (idx >= 0) {
-              speeches[speeches.length-1].texts[idx] = event.new
-            }else {
-              speeches[speeches.length-1].texts.push(event.new)
-            }
-          }else {
-            speeches[speeches.length-1].texts.push(event.new)
-          }
-        }
-      }
-      return speeches
-    },
   }
 }
 </script>

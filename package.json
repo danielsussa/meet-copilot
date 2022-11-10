@@ -4,12 +4,16 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build-watch": "vue-cli-service build --mode production --dest=chrome-extension --no-clean --watch",
+    "build": "vue-cli-service build --dest=chrome-extension --no-clean",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@types/chrome": "^0.0.200",
+    "chrome-extension": "^0.0.1",
     "core-js": "^3.8.3",
-    "vue": "^3.2.13"
+    "vue": "^3.2.13",
+    "vue-router": "^4.1.6"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
@@ -17,6 +21,7 @@
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
+    "chrome-extension-helper": "^0.13.2",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3"
   },
