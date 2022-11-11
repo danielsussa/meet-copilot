@@ -4,18 +4,17 @@ const docTitle = document.documentURI.split("?")[0].split("/").at(-1)
 console.log("new document: ", docTitle)
 
 if (docTitle.length > 0) {
-    isMeeting()
+    chrome.runtime.sendMessage({kind: "load", meetName: docTitle}, function (meetData) {
+        isMeeting(meetData)
+    });
 }
 
 
-
-function isMeeting() {
-    const channel = new BroadcastChannel('gmeet-messages');
+function isMeeting(meetData) {
 
     let observer = new MutationObserver(function(mutations) {
         let last = mutations[mutations.length-1]
         if (mutations.length === 3 && last.target.nodeName.toLowerCase() === 'span') {
-            console.log("configured!")
             if (!adjustedObserver) {
                 adjustedObserver = true
                 observer.disconnect()
@@ -28,27 +27,24 @@ function isMeeting() {
                 });
             }
 
-
-            channel.postMessage(JSON.stringify({
-                kind: "speaker",
-                name: mutations[0].addedNodes.item(0).innerText.split('\n')[0],
-                document: docTitle
-            }))
-            channel.postMessage(JSON.stringify({
-                kind: "text",
-                old : last.removedNodes?.item(0)?.textContent,
-                new: last.addedNodes.item(0).textContent,
-                document: docTitle
-            }))
+            meetData.captions.push({
+                speaker: mutations[0].addedNodes.item(0).innerText.split('\n')[0],
+                caption: last.addedNodes.item(0).textContent,
+                unix:    Date.now()
+            })
 
 
         }else if (last.target.nodeName.toLowerCase() === 'span') {
-            channel.postMessage(JSON.stringify({
-                kind: "text",
-                old : last.removedNodes?.item(0)?.textContent,
-                new: last.addedNodes.item(0).textContent,
-                document: docTitle
-            }))
+            console.log(mutations)
+            const oldText = last.removedNodes?.item(0)?.textContent
+            const newText = last.addedNodes.item(0).textContent
+            console.log(meetData.captions[meetData.captions.length-1].caption, ' || ', oldText, ' || ', newText)
+
+            meetData.captions[meetData.captions.length-1].caption =
+                replace(meetData.captions[meetData.captions.length-1].caption, oldText, newText)
+
+            chrome.runtime.sendMessage({data: meetData, kind: 'transmit', meetName: docTitle}, null);
+
         }
     });
 
@@ -60,9 +56,14 @@ function isMeeting() {
     });
 }
 
-
-
-// TESTS
-chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
-    console.log(response.farewell);
-});
+function replace(text, oldSub, newSub){
+    if (oldSub === undefined) {
+        return text + newSub
+    }
+    const idx = text.lastIndexOf(oldSub)
+    if (idx === -1) {
+        return text
+    }
+    text = text.substring(0, idx)
+    return text + newSub
+}

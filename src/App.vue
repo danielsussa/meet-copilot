@@ -1,12 +1,13 @@
 <template>
   <div class="waiting-container" v-if="!isRecording">
-    <h1>Meet Wingman - <span class="w1">Waiting for some signal<UnderscoreComponent></UnderscoreComponent></span></h1>
+    <h1>Meet Copilot<p class="w1">Waiting for some signal<UnderscoreComponent></UnderscoreComponent></p></h1>
     <h2></h2>
   </div>
-  <MeetComponent v-if="isRecording" :captions="captions"></MeetComponent>
+  <MeetComponent v-if="isRecording" :meetData="meetData"></MeetComponent>
 </template>
 
 <script>
+/* eslint-disable no-undef */
 import MeetComponent from "@/components/MeetComponent";
 import UnderscoreComponent from "@/components/UnderscoreComponent";
 
@@ -18,17 +19,30 @@ export default {
   },
   data() {
     return {
-      isRecording: true,
-      captions: []
+      extensionId:"bkofmjmbnifeaijjiibmplifjaipnali",
+      isRecording: false,
+      meetData: {
+        captions: []
+      }
     }
   },
   mounted() {
     const k = this
-    // eslint-disable-next-line no-undef
-    chrome.storage.sync.get(['example'], function(result){
-      console.log(result.example.captions)
-      k.captions = result.example.captions
-    });
+    const port = chrome.runtime.connect(this.extensionId,{name: this.getMeetUrl()});
+    port.postMessage({kind: "load"});
+    port.onMessage.addListener(function(message) {
+      console.log(message)
+      if (message.kind === 'transmit' && message.data !== null) {
+        k.meetData = message.data
+        k.isRecording = true
+      }
+    })
+  },
+  methods: {
+    getMeetUrl() {
+      const urlSpl = document.URL.replace(/\/+$/, '').split("/")
+      return urlSpl[urlSpl.length-1]
+    }
   },
   processGmeetEvent(data) {
     const date = new Date(data.date)
@@ -64,6 +78,17 @@ body {
   background-color: #1b2228;
   margin: 0;
 }
+h1 {
+  font-size: 2.5em; /* 40px/16=2.5em */
+}
+
+h2 {
+  font-size: 1.875em; /* 30px/16=1.875em */
+}
+
+p {
+  font-size: 1em; /* 14px/16=0.875em */
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -72,15 +97,12 @@ body {
 }
 
 .waiting-container{
-  position: absolute;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-content: center;
   margin-left: auto;
   margin-right: auto;
-  top: 30%;
-  left: 30%;
 }
 
 .w1 {

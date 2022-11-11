@@ -1,5 +1,5 @@
 {
-  "name": "TMeet",
+  "name": "meet copilot",
   "manifest_version": 2,
   "version": "0.1.3",
   "description": "Construct custom Web Socket requests and handle responses to directly test your Web Socket services.",
@@ -7,9 +7,8 @@
     "default_icon": "icon_032.png"
   },
   "externally_connectable": {
-    "matches": ["https://meet.google.com/*"]
+    "matches": ["https://meet.google.com/*", "http://localhost:8080/*"]
   },
-  "options_page": "index.html",
   "content_scripts": [
     {
     "matches": ["https://meet.google.com/*"],
@@ -20,5 +19,5 @@
     "scripts": [ "background.js" ]
   },
 
-  "permissions": [ "tabs" , "storage"]
+  "permissions": [ "tabs" , "storage", "nativeMessaging"]
 }

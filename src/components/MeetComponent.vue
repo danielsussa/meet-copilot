@@ -4,10 +4,10 @@
     <p style="margin-top: -20px">Current time: {{meetingTime}}</p>
 
     <div id="meet-cc" contenteditable="true" autofocus>
-      <div :class="{ odd: index%2 === 0 }" class="speach" v-for="(item, index) in captions" :key="index">
+      <div :class="{ odd: index%2 === 0 }" class="speach" v-for="(item, index) in meetData.captions" :key="index">
         <h2 contenteditable="false"><span class="time">{{date(item.unix)}}</span> {{item.speaker}}</h2>
         <div style="padding-left: 10px" >
-          {{item.text}}
+          {{item.caption}}
         </div>
       </div>
     </div>
@@ -41,7 +41,7 @@ export default {
     }
   },
   props: {
-    captions:    Array,
+    meetData:    Object,
     meetingName: String,
     meetingTime: String
   },
