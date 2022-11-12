@@ -1,6 +1,6 @@
 <template>
   <div class="waiting-container" v-if="!isRecording">
-    <h1>Meet Copilot<p class="w1">Waiting for some signal<UnderscoreComponent></UnderscoreComponent></p></h1>
+    <h1>Meet Copilot<p class="w1">Waiting for some signal</p></h1>
     <h2></h2>
   </div>
   <MeetComponent v-if="isRecording" :meetData="meetData"></MeetComponent>
@@ -9,12 +9,10 @@
 <script>
 /* eslint-disable no-undef */
 import MeetComponent from "@/components/MeetComponent";
-import UnderscoreComponent from "@/components/UnderscoreComponent";
 
 export default {
   name: 'App',
   components: {
-    UnderscoreComponent,
     MeetComponent
   },
   data() {
@@ -28,11 +26,11 @@ export default {
   },
   mounted() {
     const k = this
+
     const port = chrome.runtime.connect(this.extensionId,{name: this.getMeetUrl()});
     port.postMessage({kind: "load"});
     port.onMessage.addListener(function(message) {
-      console.log(message)
-      if (message.kind === 'transmit' && message.data !== null) {
+      if (message.kind === 'transmit' && (message.data !== null && message.data !== undefined)) {
         k.meetData = message.data
         k.isRecording = true
       }

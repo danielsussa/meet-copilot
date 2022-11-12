@@ -4,9 +4,12 @@ const docTitle = document.documentURI.split("?")[0].split("/").at(-1)
 console.log("new document: ", docTitle)
 
 if (docTitle.length > 0) {
-    chrome.runtime.sendMessage({kind: "load", meetName: docTitle}, function (meetData) {
-        isMeeting(meetData)
-    });
+    const port = chrome.runtime.connect({name: docTitle});
+    port.onMessage.addListener(function(message) {
+        if (message.kind === 'load') {
+            isMeeting(message.data)
+        }
+    })
 }
 
 
