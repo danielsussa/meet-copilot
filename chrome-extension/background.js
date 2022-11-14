@@ -4,7 +4,50 @@ const temporaryData = {}
 
 chrome.runtime.onInstalled.addListener(function(details){
     const exampleValue = {
+        status:   "stopped",
         captions: [
+            {
+                speaker: "John Doe",
+                document: "abc",
+                unix: Date.now(),
+                textNew: null,
+                caption: "Mispellings and grammatical errors can effect your credibility. The same goes for misused commas, and other types of punctuation . Not only will Grammarly underline these issues in red, it will also showed you how to correctly write the sentence."
+            },
+            {
+                speaker: "Jane Doe",
+                document: "abc",
+                unix: Date.now(),
+                textNew: null,
+                caption: "Underlines that are blue indicate that Grammarly has spotted a sentence that is unnecessarily wordy. You'll find suggestions that can possibly help you revise a wordy sentence in an effortless manner"
+            },
+            {
+                speaker: "John Doe",
+                document: "abc",
+                unix: Date.now(),
+                textNew: null,
+                caption: "Mispellings and grammatical errors can effect your credibility. The same goes for misused commas, and other types of punctuation . Not only will Grammarly underline these issues in red, it will also showed you how to correctly write the sentence."
+            },
+            {
+                speaker: "Jane Doe",
+                document: "abc",
+                unix: Date.now(),
+                textNew: null,
+                caption: "Underlines that are blue indicate that Grammarly has spotted a sentence that is unnecessarily wordy. You'll find suggestions that can possibly help you revise a wordy sentence in an effortless manner"
+            },
+            {
+                speaker: "John Doe",
+                document: "abc",
+                unix: Date.now(),
+                textNew: null,
+                caption: "Mispellings and grammatical errors can effect your credibility. The same goes for misused commas, and other types of punctuation . Not only will Grammarly underline these issues in red, it will also showed you how to correctly write the sentence."
+            },
+            {
+                speaker: "Jane Doe",
+                document: "abc",
+                unix: Date.now(),
+                textNew: null,
+                caption: "Underlines that are blue indicate that Grammarly has spotted a sentence that is unnecessarily wordy. You'll find suggestions that can possibly help you revise a wordy sentence in an effortless manner"
+            },
             {
                 speaker: "John Doe",
                 document: "abc",
