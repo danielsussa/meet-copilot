@@ -49,6 +49,7 @@ export default {
     },
   },
   mounted() {
+    // https://stackoverflow.com/questions/11715646/scroll-automatically-to-the-bottom-of-the-page
     const k = this
 
     const port = chrome.runtime.connect("blmfpfmkiciicfjapejajifcljjnjcai",{name: 'dashboard'});
