@@ -41,28 +41,33 @@ let dashBoardPort = null
 
 // content PORT listeners
 chrome.runtime.onConnect.addListener(port => {
+    console.log("add content listener: ", port)
     if (meetPorts[port.name]) {
         meetPorts[port.name].disconnect()
     }
     meetPorts[port.name] = port
 
     port.onMessage.addListener(function(msg) {
+        console.log("content message: ", msg)
         if (msg.kind === 'load') {
-            let data = temporaryData[port.name]
-            if (data === null) {
+            let data = temporaryData[msg.room]
+            if (data === null || data === undefined) {
                 data = {
                     unix:     Date.now(),
                     captions: []
                 }
             }
             return port.postMessage({
-                kind: 'transmit',
+                kind: 'load',
                 data: data,
             });
         }
         if (msg.kind === 'transmit') {
-            const port = meetPorts[msg.meetName]
+            temporaryData[msg.room] = msg.data
+            console.log("frrooom: ",meetPorts, meetPorts[msg.room])
+            const port = meetPorts[msg.room]
             if (port != null) {
+                console.log("post message to port: ", port, msg)
                 return port.postMessage(msg);
             }
         }

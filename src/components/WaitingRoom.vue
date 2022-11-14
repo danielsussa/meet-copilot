@@ -38,7 +38,7 @@ export default {
   },
   mounted() {
     const k = this
-    const port = chrome.runtime.connect("bkofmjmbnifeaijjiibmplifjaipnali",{name: 'dashboard'});
+    const port = chrome.runtime.connect("blmfpfmkiciicfjapejajifcljjnjcai",{name: 'dashboard'});
     port.postMessage({kind: "list"});
     port.onMessage.addListener(function(message) {
       if (message.kind === 'list') {

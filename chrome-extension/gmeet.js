@@ -7,14 +7,15 @@ if (docTitle.length > 0) {
     const port = chrome.runtime.connect({name: docTitle});
     port.onMessage.addListener(function(message) {
         if (message.kind === 'load') {
-            isMeeting(message.data)
+            isMeeting(port, message.data)
         }
     })
+    port.postMessage({kind: "load", room: docTitle})
 }
 
 
-function isMeeting(meetData) {
-
+function isMeeting(port, meetData) {
+    console.log("meet started: ", meetData)
     let observer = new MutationObserver(function(mutations) {
         let last = mutations[mutations.length-1]
         if (mutations.length === 3 && last.target.nodeName.toLowerCase() === 'span') {
@@ -46,7 +47,7 @@ function isMeeting(meetData) {
             meetData.captions[meetData.captions.length-1].caption =
                 replace(meetData.captions[meetData.captions.length-1].caption, oldText, newText)
 
-            chrome.runtime.sendMessage({data: meetData, kind: 'transmit', meetName: docTitle}, null);
+            port.postMessage({data: meetData, kind: 'transmit', room: docTitle});
 
         }
     });

@@ -14,7 +14,7 @@
     <div id="meet-cc" autofocus>
       <div :class="{ odd: index%2 === 0 }" class="speach" v-for="(item, index) in captionsComputed.captions" :key="index">
         <h2 contenteditable="false"><span class="time">{{date(item.unix)}}</span> {{item.speaker}}</h2>
-        <textarea v-model="item.caption" @keyup="resize" rows="4" :ref="'textarea_'+index">
+        <textarea v-model="item.caption" v-on:scroll="resize" v-on:input="computeTextChange(index)">
         </textarea>
       </div>
     </div>
@@ -25,7 +25,6 @@
 
 <script>
 /* eslint-disable no-undef */
-
 export default {
   name: "MeetingRoom",
   data() {
@@ -36,14 +35,13 @@ export default {
     }
   },
   methods: {
-    computeTextChange() {
-      console.log("index")
+    computeTextChange(index) {
+      console.log(index)
     },
     resize(e) {
-      let element = this.$refs["textarea_0"];
-      // console.log(element[0].style)
-      element[0].style.height = e.target.scrollHeight + "px";
-      console.log(e.target.scrollHeight)
+      console.log("opa")
+      e.target.style.height = "0px";
+      e.target.style.height = (e.target.scrollHeight)+"px";
     },
     date(ts) {
       return new Date(ts).toLocaleTimeString('en', {hour: "2-digit", minute: "2-digit"})
@@ -51,7 +49,7 @@ export default {
   },
   mounted() {
     const k = this
-    const port = chrome.runtime.connect("bkofmjmbnifeaijjiibmplifjaipnali",{name: 'dashboard'});
+    const port = chrome.runtime.connect("blmfpfmkiciicfjapejajifcljjnjcai",{name: 'dashboard'});
     port.postMessage({kind: "load", room: this.$route.params.room});
     port.onMessage.addListener(function(message) {
       console.log(message)
@@ -89,10 +87,12 @@ export default {
 }
 textarea{
   width:100%;
+  font-size: 1.2em;
   background-color: transparent;
   color: var(--text-primary);
   border: transparent;
   resize: none;
+  overflow: hidden;
   outline:none;
 }
 </style>
