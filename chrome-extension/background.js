@@ -36,16 +36,12 @@ chrome.runtime.onInstalled.addListener(function(details){
     console.log("first run!! =)")
 });
 
-let meetPorts = {}
+
 let dashBoardPort = null
 
 // content PORT listeners
 chrome.runtime.onConnect.addListener(port => {
     console.log("add content listener: ", port)
-    if (meetPorts[port.name]) {
-        meetPorts[port.name].disconnect()
-    }
-    meetPorts[port.name] = port
 
     port.onMessage.addListener(function(msg) {
         console.log("content message: ", msg)
@@ -64,20 +60,16 @@ chrome.runtime.onConnect.addListener(port => {
         }
         if (msg.kind === 'transmit') {
             temporaryData[msg.room] = msg.data
-            console.log("frrooom: ",meetPorts, meetPorts[msg.room])
-            const port = meetPorts[msg.room]
-            if (port != null) {
+
+            if (dashBoardPort != null) {
                 console.log("post message to port: ", port, msg)
-                return port.postMessage(msg);
+                return dashBoardPort.postMessage(msg);
             }
         }
     })
 
-    port.onDisconnect.addListener(function (port) {
-        meetPorts[port.name] = null
-        console.log("disconnected: ", port)
-    })
 })
+
 
 // dashboard PORT listeners
 chrome.runtime.onConnectExternal.addListener(function(port) {
@@ -86,18 +78,17 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
         dashBoardPort.disconnect()
     }
     dashBoardPort = port
+
     port.onMessage.addListener(function(msg) {
-        console.log(meetPorts[port.name])
-        console.log("message from: ", msg)
         if (msg.kind === 'load') {
-            return port.postMessage({
+            return dashBoardPort.postMessage({
                 kind: 'transmit',
                 data: temporaryData[msg.room],
             });
         }
         if (msg.kind === 'list') {
             chrome.storage.local.get(['list'], function(result) {
-                port.postMessage({
+                dashBoardPort.postMessage({
                     kind: 'list',
                     data: {
                         list: result.list

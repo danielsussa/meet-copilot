@@ -11,13 +11,15 @@
 <!--          </span>-->
 <!--      </div>-->
 
-    <div id="meet-cc" autofocus>
+    <div id="meet-cc" >
       <div :class="{ odd: index%2 === 0 }" class="speach" v-for="(item, index) in captionsComputed.captions" :key="index">
         <h2 contenteditable="false"><span class="time">{{date(item.unix)}}</span> {{item.speaker}}</h2>
-        <textarea v-model="item.caption" v-on:scroll="resize" v-on:input="computeTextChange(index)">
+        <textarea v-model="item.caption" v-on:scroll="resize" v-on:input="computeTextChange(index)" :autofocus="item.length-1 === index">
         </textarea>
       </div>
     </div>
+
+    <div id="last-div"></div>
 
 
   </div>
@@ -39,7 +41,6 @@ export default {
       console.log(index)
     },
     resize(e) {
-      console.log("opa")
       e.target.style.height = "0px";
       e.target.style.height = (e.target.scrollHeight)+"px";
     },
@@ -49,10 +50,10 @@ export default {
   },
   mounted() {
     const k = this
+
     const port = chrome.runtime.connect("blmfpfmkiciicfjapejajifcljjnjcai",{name: 'dashboard'});
     port.postMessage({kind: "load", room: this.$route.params.room});
     port.onMessage.addListener(function(message) {
-      console.log(message)
       if (message.kind === 'transmit' && (message.data !== null && message.data !== undefined)) {
         k.captionsComputed = message.data
         k.isRecording = true
@@ -75,7 +76,6 @@ export default {
   text-align: center;
 }
 .speach{
-  padding-bottom: 15px;
   padding-top: 1px;
   padding-left: 10px;
 }
@@ -94,5 +94,11 @@ textarea{
   resize: none;
   overflow: hidden;
   outline:none;
+}
+
+.scrollable {
+  overflow: hidden;
+  overflow-y: scroll;
+  height: calc(100vh - 20px);
 }
 </style>

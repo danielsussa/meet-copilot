@@ -34,9 +34,13 @@ export default {
 }
 
 body {
+  overflow: auto;
   background-color: var(--background-primary);
   margin: 0;
+  scroll-behavior: smooth;
+  height: 100%
 }
+
 h1 {
   font-size: 2.5em; /* 40px/16=2.5em */
 }
