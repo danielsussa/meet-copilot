@@ -1,14 +1,12 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import { createRouter, createWebHistory } from "vue-router";
+import WaitingRoom from "@/components/WaitingRoom";
+import MeetingRoom from "@/components/MeetingRoom";
 
 const routes = [
-    {
-        path: "/",
-        name: "Welcome",
-        component: () =>
-            import(/* webpackChunkName: "Welcome" */ "./App"),
-    },
+    { path: '/', component: WaitingRoom },
+    { path: '/rooms/:room', component: MeetingRoom },
 ];
 
 const router = createRouter({
@@ -16,6 +14,9 @@ const router = createRouter({
     routes,
 });
 
-export default router;
+import TextareaAutosize from 'vue-textarea-autosize'
 
-createApp(App).mount('#app')
+const app = createApp(App)
+app.use(router)
+app.use(TextareaAutosize)
+app.mount('#app')

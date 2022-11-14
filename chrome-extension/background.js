@@ -8,14 +8,14 @@ chrome.runtime.onInstalled.addListener(function(details){
             {
                 speaker: "John Doe",
                 document: "abc",
-                unix: 100,
+                unix: Date.now(),
                 textNew: null,
                 caption: "Mispellings and grammatical errors can effect your credibility. The same goes for misused commas, and other types of punctuation . Not only will Grammarly underline these issues in red, it will also showed you how to correctly write the sentence."
             },
             {
                 speaker: "Jane Doe",
                 document: "abc",
-                unix: 100,
+                unix: Date.now(),
                 textNew: null,
                 caption: "Underlines that are blue indicate that Grammarly has spotted a sentence that is unnecessarily wordy. You'll find suggestions that can possibly help you revise a wordy sentence in an effortless manner"
             },
@@ -23,14 +23,23 @@ chrome.runtime.onInstalled.addListener(function(details){
     }
 
     chrome.storage.local.set({example: exampleValue})
+    chrome.storage.local.set({list: [
+            {
+                "meetName": "Example",
+                "link":     "example",
+                "date":     Date.now(),
+                "status":   "stopped"
+            }
+    ]})
     temporaryData['example'] = exampleValue
 
     console.log("first run!! =)")
 });
 
 let meetPorts = {}
-let dashBoardPorts = {}
+let dashBoardPort = null
 
+// content PORT listeners
 chrome.runtime.onConnect.addListener(port => {
     if (meetPorts[port.name]) {
         meetPorts[port.name].disconnect()
@@ -65,25 +74,35 @@ chrome.runtime.onConnect.addListener(port => {
     })
 })
 
-
+// dashboard PORT listeners
 chrome.runtime.onConnectExternal.addListener(function(port) {
     console.log("connect: ", port)
-    if (dashBoardPorts[port.name]) {
-        dashBoardPorts[port.name].disconnect()
+    if (dashBoardPort != null) {
+        dashBoardPort.disconnect()
     }
-    dashBoardPorts[port.name] = port
+    dashBoardPort = port
     port.onMessage.addListener(function(msg) {
         console.log(meetPorts[port.name])
         console.log("message from: ", msg)
         if (msg.kind === 'load') {
             return port.postMessage({
                 kind: 'transmit',
-                data: temporaryData[port.name],
+                data: temporaryData[msg.room],
+            });
+        }
+        if (msg.kind === 'list') {
+            chrome.storage.local.get(['list'], function(result) {
+                port.postMessage({
+                    kind: 'list',
+                    data: {
+                        list: result.list
+                    }
+                })
             });
         }
     })
     port.onDisconnect.addListener(function (port) {
-        dashBoardPorts[port.name] = null
+        dashBoardPort = null
         console.log("disconnected: ", port)
     })
 })

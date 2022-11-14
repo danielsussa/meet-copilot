@@ -1,19 +1,13 @@
 <template>
-  <div class="waiting-container" v-if="!isRecording">
-    <h1>Meet Copilot<p class="w1">Waiting for some signal</p></h1>
-    <h2></h2>
-  </div>
-  <MeetComponent v-if="isRecording" :meetData="meetData"></MeetComponent>
+  <router-view></router-view>
 </template>
 
 <script>
 /* eslint-disable no-undef */
-import MeetComponent from "@/components/MeetComponent";
 
 export default {
   name: 'App',
   components: {
-    MeetComponent
   },
   data() {
     return {
@@ -25,55 +19,22 @@ export default {
     }
   },
   mounted() {
-    const k = this
-
-    const port = chrome.runtime.connect(this.extensionId,{name: this.getMeetUrl()});
-    port.postMessage({kind: "load"});
-    port.onMessage.addListener(function(message) {
-      if (message.kind === 'transmit' && (message.data !== null && message.data !== undefined)) {
-        k.meetData = message.data
-        k.isRecording = true
-      }
-    })
-  },
-  methods: {
-    getMeetUrl() {
-      const urlSpl = document.URL.replace(/\/+$/, '').split("/")
-      return urlSpl[urlSpl.length-1]
-    }
-  },
-  processGmeetEvent(data) {
-    const date = new Date(data.date)
-    if (data.kind === 'speaker') {
-
-      this.captions.push({
-        speaker: data.name,
-        time:    date.toLocaleTimeString('en', {hour: "2-digit", minute: "2-digit"}),
-        texts: []
-      })
-    }
-    if (data.kind === 'text') {
-      if (this.captions.length === 0) {
-        return
-      }
-      if (data.old != null) {
-        const idx = this.captions[this.captions.length-1].texts.lastIndexOf(data.old)
-        if (idx >= 0) {
-          this.captions[this.captions.length-1].texts[idx] = data.new
-        }else {
-          this.captions[this.captions.length-1].texts.push(data.new)
-        }
-      }else {
-        this.captions[this.captions.length-1].texts.push(data.new)
-      }
-    }
   }
 }
 </script>
 
 <style>
+
+* {
+  /*─────────Original Obsidian Variables──────────*/
+  --background-primary: hsl(200, 14%, 15%);
+  --background-odd: hsl(200, 18%, 18%);
+  --text-primary: hsl(200, 20%, 50%);
+  --container-border: hsl(200, 25%, 25%);
+}
+
 body {
-  background-color: #1b2228;
+  background-color: var(--background-primary);
   margin: 0;
 }
 h1 {
@@ -91,19 +52,8 @@ p {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #8caec5;
+  color: var(--text-primary);
 }
 
-.waiting-container{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-content: center;
-  margin-left: auto;
-  margin-right: auto;
-}
 
-.w1 {
-  font-size: 0.7em;
-}
 </style>
