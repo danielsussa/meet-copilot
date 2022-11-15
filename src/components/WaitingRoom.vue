@@ -4,13 +4,13 @@
 
   <div class="meetings-container">
     <div v-for="(item, index) in list" :key="index">
-      <div class="meeting-container" v-on:click="goToRoom(item.link)">
+      <div class="meeting-container" v-on:click="goToRoom(item.name)">
         <div class="meeting-data">
           <div class="meeting-date">
-            <p>{{item.date}}</p>
+            <p>{{item.unix}}</p>
           </div>
           <div class="meeting-name">
-            <p>{{item.meetName}}</p>
+            <p>{{item.name}}</p>
           </div>
         </div>
         <div class="meeting-status">
@@ -38,13 +38,14 @@ export default {
   },
   mounted() {
     const k = this
-    const port = chrome.runtime.connect("bkofmjmbnifeaijjiibmplifjaipnali",{name: 'dashboard'});
-    port.postMessage({kind: "list"});
-    port.onMessage.addListener(function(message) {
-      if (message.kind === 'list') {
-        k.list = message.data.list
-      }
-    })
+    this.port.postMessage({kind: "list"});
+    this.emitter.on("chrome-port-list", msg => {
+      console.log('chrome-port-list')
+      k.list = msg.data
+    });
+  },
+  beforeUnmount() {
+    this.emitter.off('chrome-port-list')
   }
 }
 </script>

@@ -5,6 +5,8 @@ const temporaryData = {}
 chrome.runtime.onInstalled.addListener(function(details){
     const exampleValue = {
         status:   "stopped",
+        unix:      Date.now(),
+        link:      "example",
         captions: [
             {
                 speaker: "John Doe",
@@ -66,14 +68,6 @@ chrome.runtime.onInstalled.addListener(function(details){
     }
 
     chrome.storage.local.set({example: exampleValue})
-    chrome.storage.local.set({list: [
-            {
-                "meetName": "Example",
-                "link":     "example",
-                "date":     Date.now(),
-                "status":   "stopped"
-            }
-    ]})
     temporaryData['example'] = exampleValue
 
     console.log("first run!! =)")
@@ -123,6 +117,7 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
     dashBoardPort = port
 
     port.onMessage.addListener(function(msg) {
+        console.log("dashboard msg: ", msg)
         if (msg.kind === 'load') {
             return dashBoardPort.postMessage({
                 kind: 'transmit',
@@ -130,18 +125,19 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
             });
         }
         if (msg.kind === 'list') {
-            chrome.storage.local.get(['list'], function(result) {
-                dashBoardPort.postMessage({
-                    kind: 'list',
-                    data: {
-                        list: result.list
-                    }
+            let list = []
+            for (let [key, value] of Object.entries(temporaryData)){
+                list.push({
+                    name: key,
+                    unix: value.unix,
+                    status: value.status,
+
                 })
-            });
+            }
+            dashBoardPort.postMessage({
+                kind: 'list',
+                data: list
+            })
         }
-    })
-    port.onDisconnect.addListener(function (port) {
-        dashBoardPort = null
-        console.log("disconnected: ", port)
     })
 })
