@@ -40,7 +40,6 @@ export default {
     const k = this
     this.port.postMessage({kind: "list"});
     this.emitter.on("chrome-port-list", msg => {
-      console.log('chrome-port-list')
       k.list = msg.data
     });
   },

@@ -37,6 +37,11 @@ port.onMessage.addListener(msg => {
     }
 })
 
+
+document.addEventListener("keydown", (event) => {
+    emitter.emit('keydown', event)
+});
+
 app.config.globalProperties.port = port
 
 app.mount('#app')

@@ -31,6 +31,8 @@ export default {
   --background-odd: hsl(200, 18%, 18%);
   --text-primary: hsl(200, 20%, 50%);
   --container-border: hsl(200, 25%, 25%);
+
+  --background-red: hsl(358, 36%, 37%);
 }
 
 body {
