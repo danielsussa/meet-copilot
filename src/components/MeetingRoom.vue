@@ -4,7 +4,7 @@
       <div :class="{ odd: index%2 === 0 }" class="speach" v-for="(item, index) in captionsComputed.captions" :key="index">
         <h2 contenteditable="false"><span class="time">{{date(item.unix)}}</span> {{item.speaker}}</h2>
 <!--        <TextArea :text="item.caption"></TextArea>-->
-        <SpanTextArea :is-active="captionsComputed.status !== 'stopped'" class="text-area" :text="item.caption"></SpanTextArea>
+        <SpanTextArea @textChange="textChange" :index="index" :is-active="captionsComputed.status !== 'stopped'" class="text-area" :text="item.caption"></SpanTextArea>
       </div>
     </div>
 
@@ -29,11 +29,14 @@ export default {
     }
   },
   methods: {
+    textChange(msg){
+      this.captionsComputed.captions[msg.index].caption = msg.text
+    },
     keyDown(e) {
 
       if (e.key.toLowerCase() === 's' && e.ctrlKey) {
         console.log('save from keydown')
-        this.port.postMessage({kind: "save", room: this.$route.params.room});
+        this.port.postMessage({kind: "save", room: this.$route.params.room, data: this.captionsComputed});
         e.preventDefault()
       }
     },

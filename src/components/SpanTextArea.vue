@@ -6,9 +6,11 @@
 <script>
 export default {
   name: "SpanTextArea",
+  emits: ["textChange"],
   props: {
     text: String,
-    isActive: Boolean
+    isActive: Boolean,
+    index: Number,
   },
   data() {
     return {
@@ -23,8 +25,12 @@ export default {
 
     const k = this
     let observer = new MutationObserver(function(mutations){
-      console.log(k.text)
-      console.log(mutations)
+        for (const mutation of mutations) {
+          k.$emit('textChange', {
+            text: mutation.target.textContent,
+            index: k.index
+          });
+        }
     })
 
     observer.observe(this.$el, {
